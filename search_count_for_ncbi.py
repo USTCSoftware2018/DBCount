@@ -31,8 +31,10 @@ class SearchTerm(object):
         results = []
 
         for name, num in zip(names, nums):
-            join_name=name_dic[name.get_text()]
-            result[join_name] = int(num.get_text())
+            join_name = name_dic[name.get_text()]
+            result['title'] = join_name
+            result['count'] = int(num.get_text())
+            result['url'] = 'https://www.ncbi.nlm.nih.gov/' + name.get_text() + '/?term=' + self.term
             temp_results = json.dumps(result)
             join_result = json.loads(temp_results)
             results.append(join_result)
