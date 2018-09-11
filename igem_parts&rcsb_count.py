@@ -18,7 +18,11 @@ def rcsb(query):
     result = urllib.request.urlopen(req).read()
     count = str(result).count('\\n')
     search_url = 'http://www.rcsb.org/pdb/search/navbarsearch.do?f=&q=%s' % query
-    return count, search_url
+    return {
+            'title': 'RCSB',
+            'url': search_url,
+            'count': count,
+            }
 
 
 def igem_parts(query):
@@ -33,7 +37,11 @@ def igem_parts(query):
     div = soup.find(attrs={'class': 'results-info'})
     count = int(div.find_all('strong')[-1].text)
     search_url = 'http://parts.igem.org/Special:Search?search=%s' % query
-    return count, search_url
+    return {
+            'title': 'iGEM Parts',
+            'url': search_url,
+            'count': count,
+            }
 
 
 if __name__=='__main__':
