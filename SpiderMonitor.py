@@ -352,7 +352,8 @@ class SpiderMonitor:
             yield result
 
 
-# 调用模式, 调用API的结果是一个iterable
-for i in SpiderMonitor().spiders(keyword='p53', attempt_times=3):
-    print(i)
-print('Main stream ended.')
+if(__name__ == '__main__'):
+    # 调用模式, 调用API的结果是一个iterable
+    for i in SpiderMonitor().spiders(keyword='p53', attempt_times=3):
+        print(i)
+    print('Main stream ended.')
