@@ -1,5 +1,15 @@
 # Count API
 
+Install:
+```shell
+pip install flask
+```
+
+Test run:
+```shell
+python app.py
+```
+
 Request:
 
 ```
@@ -11,9 +21,9 @@ Response:
 ```json
 [
     {
-        'title': '',
-        'url': '',
-        'count': 0
+        "title": "",
+        "url": "",
+        "count": 0
     },
 ]
 ```
