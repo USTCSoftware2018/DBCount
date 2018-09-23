@@ -29,24 +29,18 @@ def NCBI_count(term, all_result):  # find all databases which are concerning wit
                 'taxonomy': 'Taxonomy', 'toolkit': 'ToolKit', 'toolkitall': 'ToolKitAll', 'toolkitbookgh':
                     'ToolKitBookgh', 'unigene': 'UniGene'}
     url_query = 'https://eutils.ncbi.nlm.nih.gov/gquery' + '?term=' + term + '&retmode=xml'
-    webdata = requests.get(url=url_query).text
+    webdata = requests.get(url=url_query,timeout=5).text
     # if found nothing in NCBI then url is the homepage of NCBI.
 
-    if (datetime.datetime.now() - stime).seconds > timelimit:
+    if (datetime.datetime.now() - stime).seconds > timelimit or webdata is None:
         result = {
             'title': 'NCBI',
             'count': -1,
             'url': 'https://www.ncbi.nlm.nih.gov/',
         }
-        print("Time Limit Exceed.")
+        print("NCBI Time Limit Exceed.\n")
         return result
-    if webdata is None:
-        result = {
-            'title': 'NCBI',
-            'count': 0,
-            'url': 'https://www.ncbi.nlm.nih.gov/',
-        }
-        return None
+
     soup = BeautifulSoup(webdata, 'lxml')
     names = soup.select('dbname')
     nums = soup.select('count')
@@ -60,7 +54,7 @@ def NCBI_count(term, all_result):  # find all databases which are concerning wit
         }
         results.append(result)
         all_result.append(result)
-    # print('ncbi: %f' % (datetime.datetime.now() - stime).seconds)
+    print('ncbi: %f' % (datetime.datetime.now() - stime).seconds)
 
     return results
 
@@ -69,22 +63,16 @@ def NLM_count(keyword, all_result):
     stime = datetime.datetime.now()
     timelimit = 3
     url = 'https://ghr.nlm.nih.gov/search?query=%s&show=xml&count=1' % keyword
-    xml = urllib.request.urlopen(url).read()
-    if (datetime.datetime.now() - stime).seconds > timelimit:
+    xml = urllib.request.urlopen(url=url,timeout=timelimit).read()
+    if (datetime.datetime.now() - stime).seconds > timelimit or xml is None:
         result = {
             'title': 'NLM',
             'count': -1,
             'url': 'https://ghr.nlm.nih.gov/search?query=%s' % keyword
         }
-        print("Time Limit Exceed.")
+        print("NLM Time Limit Exceed.\n")
         return result
-    if xml is None:
-        result = {
-            'title': 'NLM',
-            'count': 0,
-            'url': 'https://ghr.nlm.nih.gov/search?query=%s' % keyword
-        }
-        return result
+
     soup = BeautifulSoup(xml, 'lxml')
     if soup.find('search_results') is None:
         return None
@@ -121,16 +109,17 @@ def RCSB_count(keyword, all_result):
             'count': -1,
             'url': 'http://www.rcsb.org/pdb/search/navbarsearch.do?f=&q=%s' % keyword,
         }
-        print("Time Limit Exceed.")
+        print("RCSB Time Limit Exceed.\n")
         return result
 
-    res = urllib.request.urlopen(req).read()
+    res = urllib.request.urlopen(req,timeout=timelimit).read()
     if res is None:
         result = {
             'title': 'RCSB',
             'count': -1,
             'url': 'http://www.rcsb.org/pdb/search/navbarsearch.do?f=&q=%s' % keyword,
         }
+        print("RCSB Time Limit Exceed.\n")
         return result
 
     count = str(res).count('\\n')
@@ -150,13 +139,14 @@ def RCSB_count(keyword, all_result):
 def iGEMParts_count(keyword, all_result):
     # 因为igem的query service(看起来是10年的一个参赛项目)已经挂掉了,    没办法用API获得模糊搜索的结果, 目前爬取的是原网站.
     stime = datetime.datetime.now()
+    timelimit=3
     url = 'http://parts.igem.org/Special:Search?search=%s' % keyword
     headers = {
         'accept': 'text / html, application / xhtml + xml, application /    xml; q = 0.9, image / webp, image / apng, * / *;q = 0.8'
     }
     req = urllib.request.Request(url, headers=headers)
 
-    if (datetime.datetime.now() - stime).seconds > 3:
+    if (datetime.datetime.now() - stime).seconds > timelimit:
         result = {
             'title': 'iGEM Parts',
             'count': -1,
@@ -164,14 +154,15 @@ def iGEMParts_count(keyword, all_result):
         }
         print("Time Limit Exceed.")
         return result
-    html = urllib.request.urlopen(req).read()
+    html = urllib.request.urlopen(req,timeout=timelimit).read()
 
     if html is None:
         result = {
             'title': 'iGEM Parts',
-            'count': 0,
+            'count': -1,
             'url': 'http://parts.igem.org/Special:Search?search=%s' % keyword,
         }
+        print("iGEM Time Limit Exceed.\n")
         return result
 
     soup = BeautifulSoup(html, 'lxml')
@@ -200,18 +191,18 @@ def iGEMParts_count(keyword, all_result):
 
 def UniProt_count(keyword, all_result):
     stime = datetime.datetime.now()
-    timelimit=2
+    timelimit=3
     query_string = urlencode({'query': keyword})
     query_url = 'https://www.uniprot.org/uniprot/?%s&sort=score' % query_string
-    response = requests.get(query_url)
+    response = requests.get(query_url,timeout=timelimit)
 
-    if (datetime.datetime.now() - stime).seconds > timelimit:
+    if (datetime.datetime.now() - stime).seconds > timelimit or response is None:
         result = {
             'title': 'UniProt',
             'count': -1,
             'url': query_url,
         }
-        print("Time Limit Exceed.")
+        print("UniProt Time Limit Exceed.\n")
         return result
     bs = BeautifulSoup(response.content, features='html.parser')
     if bs.find('div', class_='main-aside') is None or bs.find('div', class_='main-aside').find('script') is None:
@@ -236,25 +227,18 @@ def UniProt_count(keyword, all_result):
 
 def Taxonomy_count(keyword, all_result):
     stime = datetime.datetime.now()
+    timelimit=2
 
     query_string = urlencode({'query': keyword})
     query_url = 'https://www.uniprot.org/taxonomy/?%s&sort=score' % query_string
-    response = requests.get(query_url)
-    if (datetime.datetime.now() - stime).seconds > 2:
+    response = requests.get(query_url,timeout=timelimit)
+    if (datetime.datetime.now() - stime).seconds > timelimit or response is None:
         result = {
             'title': 'Taxonomy',
             'count': -1,
             'url': query_url,
         }
         print("Time Limit Exceed.")
-        return result
-
-    if response is None:
-        result = {
-            'title': 'Taxonomy',
-            'count': 0,
-            'url': query_url,
-        }
         return result
 
     bs = BeautifulSoup(response.content, features='html.parser')
@@ -306,10 +290,7 @@ class Spiders(threading.Thread):
             th.start()
 
         for th in self.thread_pool:
-
-            if (datetime.datetime.now() - stime).seconds > total_timeout:
-                raise TimeoutError("Timeout")
-            threading.Thread.join(th, timeout=1)  # single thread time limit
+            threading.Thread.join(th, timeout=3)  # single thread time limit
 
         print('All time cost: %f' % (datetime.datetime.now() - stime).seconds)
         return self.results
