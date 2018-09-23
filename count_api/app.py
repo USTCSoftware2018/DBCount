@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 
-@app.route("/search", methods=['GET'])
-def search():
-    kw = request.args.get('kw')
+def search_impl(kw):
+    # TODO: impl this func
     result = [
         {
             'title': '',
@@ -11,6 +10,13 @@ def search():
             'count': 0
         }
     ]
+    return result
+
+@app.route("/search", methods=['GET'])
+def search():
+    # DO NOT modify this func
+    kw = request.args.get('kw')
+    result = search_impl(kw)
     return jsonify(result)
 
 if __name__ == "__main__":
