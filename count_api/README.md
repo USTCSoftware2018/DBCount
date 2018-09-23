@@ -13,7 +13,7 @@ python app.py
 Request:
 
 ```
-GET /seach?kw=abc
+GET /search?kw=abc
 ```
 
 Response:
