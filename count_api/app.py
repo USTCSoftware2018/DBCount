@@ -1,15 +1,16 @@
 from flask import Flask, request, jsonify
+from SpiderMonitor import SpiderMonitor
+
+
+from functools import update_wrapper
+from flask import Response, current_app
+
+
 app = Flask(__name__)
 
 def search_impl(kw):
     # TODO: impl this func
-    result = [
-        {
-            'title': '',
-            'url': '',
-            'count': 0
-        }
-    ]
+    result = SpiderMonitor().spiders(keyword=kw, timeout=5)
     return result
 
 @app.route("/search", methods=['GET'])
